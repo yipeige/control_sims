@@ -12,7 +12,7 @@ MJCF = """
 <mujoco model="inverted pendulum">
 	<compiler inertiafromgeom="true"/>
 	<default>
-		<joint armature="0" damping="1" limited="true"/>
+		<joint armature="0" damping="0.1" limited="true"/>
 		<geom contype="0" friction="0.1 0.1 0.1" rgba="0.7 0.7 0 1"/>
 		<tendon/>
 		<motor ctrlrange="-1000 1000"/>

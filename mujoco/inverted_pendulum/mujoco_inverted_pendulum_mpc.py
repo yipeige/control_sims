@@ -42,7 +42,7 @@ MJCF = """
 <mujoco model="inverted pendulum">
 	<compiler inertiafromgeom="true"/>
 	<default>
-		<joint armature="0" damping="1" limited="true"/>
+		<joint armature="0" damping="0.1" limited="true"/>
 		<geom contype="0" friction="0.1 0.1 0.1" rgba="0.7 0.7 0 1"/>
 		<tendon/>
 		<motor ctrlrange="-1000 1000"/>
@@ -136,15 +136,20 @@ def mpc_controller(x0):
     return u  # 若 MuJoCo 中方向相反，通过负号修正
 
 frame = 0
+initial_deg = 50
 
 with mujoco.viewer.launch_passive(model, data) as viewer:
     viewer.cam.distance = 15
     viewer.cam.lookat[0] = 0
     history = []
     # 初始化状态（稍作扰动）
-    data.qpos[1] = np.deg2rad(-40)  # 初始倾斜5度
+    # data.qpos[1] = np.deg2rad(-40)  # 初始倾斜5度
     
     while viewer.is_running():
+        print("current frame:", frame)
+        if frame == 100:
+            data.qpos[1] = np.deg2rad(initial_deg)
+            initial_deg += 10
 
         # 获取当前状态 [位置, 角度, 速度, 角速度]
         x = np.array([data.qpos[0], data.qvel[0], data.qpos[1], data.qvel[1]])
@@ -161,6 +166,7 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
         mujoco.mj_step(model, data)
         viewer.sync()
         time.sleep(0.001 / 60)  # 约60Hz刷新率
+        frame += 1
 
 # ========================
 # 结果可视化（可选）
